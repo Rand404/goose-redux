@@ -5,13 +5,8 @@ and the occasional verbal `HONK`.
 
 ## Features
 
-- Reacts to messages containing common variations of "honk" with the server's
-  custom `honk` emoji.
-- Has a 1-in-2,500 chance of reacting to any guild message with a dagger.
-- Has a 1-in-1,000 chance of replying `HONK` to messages containing the letter
-  `h`.
-- Ignores direct messages.
-- Prints colorful activity logs to the console.
+- Reacts to honk variations with the server's custom `honk` emoji.
+- Occasionally reacts with a dagger or replies with `HONK`.
 
 ## Requirements
 
@@ -26,6 +21,32 @@ intent in the Discord Developer Portal before starting the bot.
 
 ## Installation
 
+### 1. Create the Discord application
+
+1. Open the [Discord Developer Portal](https://discord.com/developers/applications)
+   and select **New Application**.
+2. Give the application a name and select **Create**.
+3. Open the **Bot** page and select **Add Bot**, then confirm.
+4. Under **Privileged Gateway Intents**, enable **Message Content Intent**.
+   The bot uses this intent to inspect message text.
+5. Select **Reset Token**, copy the new token, and keep it secret. You will
+   not be able to view the full token again without resetting it.
+
+### 2. Invite the bot to a server
+
+1. Open **OAuth2 > URL Generator** in the Developer Portal.
+2. Select the `bot` scope.
+3. Grant the bot these permissions:
+    - View Channels
+    - Send Messages
+    - Add Reactions
+4. Copy the generated URL, open it in a browser, and select the server where
+   you want to install the bot.
+
+5. Create an emote named 'honk' to be used as the honk reaction
+
+### 3. Clone and install the project
+
 Clone the repository and install its dependencies:
 
 ```sh
@@ -34,7 +55,7 @@ cd goose-redux
 npm install
 ```
 
-## Configuration
+### 4. Configure the bot
 
 Create an `auth.json` file in the project root:
 
@@ -45,11 +66,10 @@ Create an `auth.json` file in the project root:
 ```
 
 The file is ignored by Git. Never commit your bot token or share it publicly.
+If the file is missing or does not contain a token, the bot prints an error and
+exits without attempting to connect to Discord.
 
-For the honk reaction, add a custom emoji named `honk` to the Discord server
-where the bot is installed.
-
-## Running the bot
+### 5. Start the bot
 
 Start the bot with:
 
@@ -76,6 +96,8 @@ The project currently uses Node's built-in test runner. The bot entry point is
 ```text
 .
 ├── index.js
+├── auth.js
+├── auth.test.js
 ├── messageRules.js
 ├── messageRules.test.js
 ├── package.json

@@ -1,8 +1,29 @@
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const colors = require('colors')  //Used for pretty aesthetic colours in console
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
-const auth = require('./auth.json');
+const { getToken } = require('./auth');
 const { containsHonk, containsLetterH, randomInteger } = require('./messageRules');
+
+function loadToken() {
+  try {
+    return getToken(require('./auth.json'));
+  } catch (error) {
+    if (error.code === 'MODULE_NOT_FOUND') {
+      throw new Error('auth.json was not found. Create it with a "token" value.');
+    }
+    throw error;
+  }
+}
+
+let token;
+try {
+  token = loadToken();
+} catch (error) {
+  console.error(`Unable to start bot: ${error.message}`);
+  process.exitCode = 1;
+}
+
+if (token) {
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
 
 client.once(Events.ClientReady, c => {
   console.log(`HONK HONK HONK ${c.user.tag}!`);
@@ -43,4 +64,8 @@ client.on('messageCreate', message => {   //On any message containing the letter
   }
 });
 
-client.login(auth.token);
+client.login(token).catch(error => {
+  console.error(`Unable to log in to Discord: ${error.message}`);
+  process.exitCode = 1;
+});
+}

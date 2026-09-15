@@ -4,7 +4,7 @@
   "description": "A Discord bot that honks at messages",
   "main": "index.js",
   "scripts": {
-    "test": "node --test messageRules.test.js",
+    "test": "node --test *.test.js",
     "start": "node index.js"
   },
   "keywords": [],

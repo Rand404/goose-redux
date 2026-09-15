@@ -76,6 +76,8 @@ The project currently uses Node's built-in test runner. The bot entry point is
 ```text
 .
 ├── index.js
+├── messageRules.js
+├── messageRules.test.js
 ├── package.json
 ├── package-lock.json
 └── .gitignore

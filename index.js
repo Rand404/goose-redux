@@ -25,59 +25,59 @@ try {
 
 if (token) {
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
-const honkEmojiAsset = path.join(__dirname, 'assets', 'honk_emote.png');
-const honkEmojiCreations = new Map();
+const honkEmoteAsset = path.join(__dirname, 'assets', 'honk_emote.png');
+const honkEmoteCreations = new Map();
 
-function ensureHonkEmoji(guild) {
-  const existingEmoji = guild.emojis.cache.find(emoji => emoji.name === 'honk');
-  if (existingEmoji) return existingEmoji;
+function ensureHonkEmote(guild) {
+  const existingEmote = guild.emojis.cache.find(emote => emote.name === 'honk');
+  if (existingEmote) return existingEmote;
 
-  const pendingCreation = honkEmojiCreations.get(guild.id);
+  const pendingCreation = honkEmoteCreations.get(guild.id);
   if (pendingCreation) return pendingCreation;
 
   const creation = guild.emojis.create({
-    attachment: honkEmojiAsset,
+    attachment: honkEmoteAsset,
     name: 'honk'
-  }).then(emoji => {
+  }).then(emote => {
     console.log(colors.green(`Created :honk: in ${guild.name}`));
-    return emoji;
+    return emote;
   }).finally(() => {
-    honkEmojiCreations.delete(guild.id);
+    honkEmoteCreations.delete(guild.id);
   });
-  honkEmojiCreations.set(guild.id, creation);
+  honkEmoteCreations.set(guild.id, creation);
   return creation;
 }
 
 client.once(Events.ClientReady, async c => {
   console.log(`HONK HONK HONK ${c.user.tag}!`);
   await Promise.all(c.guilds.cache.map(guild =>
-    ensureHonkEmoji(guild).catch(error => {
+    ensureHonkEmote(guild).catch(error => {
       console.error(`Unable to create :honk: in ${guild.name}:`, error);
     })
   ));
 });
 
 client.on(Events.GuildCreate, guild => {
-  ensureHonkEmoji(guild).catch(error => {
+  ensureHonkEmote(guild).catch(error => {
     console.error(`Unable to create :honk: in ${guild.name}:`, error);
   });
 });
 
 client.on('messageCreate', message => {
   if (message.channel.type == "dm") return; //Rough fix for a bug in which the bot crashes upon being dm'd with a honk
-  else if (containsHonk(message.content)) {  //Reacts to any message containing 'honk' or a number of set alternatives with the emoji tied to :honk: - Also makes sure to be case insensitive
-    const reactionEmoji = message.guild.emojis.cache.find(emoji => emoji.name === 'honk');
-    if (!reactionEmoji) {
-      console.error(`Unable to react with :honk: in ${message.guild.name}: emoji is not available`);
+  else if (containsHonk(message.content)) {  //Reacts to any message containing 'honk' or a number of set alternatives with the emote tied to :honk: - Also makes sure to be case insensitive
+    const reactionEmote = message.guild.emojis.cache.find(emote => emote.name === 'honk');
+    if (!reactionEmote) {
+      console.error(`Unable to react with :honk: in ${message.guild.name}: emote is not available`);
       return;
     }
-    message.react(reactionEmoji)
+    message.react(reactionEmote)
       .then(console.log(colors.blue(`Message Honked in: ${message.guild.name} -> ${message.channel.name}`)))
       .catch(console.error);
   }
 });
 
-client.on('messageCreate', message => {     //The bot will react with a dagger emoji when targeting = 10 on a particular message
+client.on('messageCreate', message => {     //The bot will react with a dagger emote when targeting = 10 on a particular message
   var targeting = randomInteger(2500);
   if (message.channel.type == "dm") return; 
   else if (targeting == 10) {

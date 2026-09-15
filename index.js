@@ -1,3 +1,4 @@
+const path = require('node:path');
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const colors = require('colors')  //Used for pretty aesthetic colours in console
 const { getToken } = require('./auth');
@@ -24,19 +25,56 @@ try {
 
 if (token) {
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
+const honkEmojiAsset = path.join(__dirname, 'assets', 'honk_emote.png');
+const honkEmojiCreations = new Map();
 
-client.once(Events.ClientReady, c => {
+function ensureHonkEmoji(guild) {
+  const existingEmoji = guild.emojis.cache.find(emoji => emoji.name === 'honk');
+  if (existingEmoji) return existingEmoji;
+
+  const pendingCreation = honkEmojiCreations.get(guild.id);
+  if (pendingCreation) return pendingCreation;
+
+  const creation = guild.emojis.create({
+    attachment: honkEmojiAsset,
+    name: 'honk'
+  }).then(emoji => {
+    console.log(colors.green(`Created :honk: in ${guild.name}`));
+    return emoji;
+  }).finally(() => {
+    honkEmojiCreations.delete(guild.id);
+  });
+  honkEmojiCreations.set(guild.id, creation);
+  return creation;
+}
+
+client.once(Events.ClientReady, async c => {
   console.log(`HONK HONK HONK ${c.user.tag}!`);
+  await Promise.all(c.guilds.cache.map(guild =>
+    ensureHonkEmoji(guild).catch(error => {
+      console.error(`Unable to create :honk: in ${guild.name}:`, error);
+    })
+  ));
+});
+
+client.on(Events.GuildCreate, guild => {
+  ensureHonkEmoji(guild).catch(error => {
+    console.error(`Unable to create :honk: in ${guild.name}:`, error);
+  });
 });
 
 client.on('messageCreate', message => {
   if (message.channel.type == "dm") return; //Rough fix for a bug in which the bot crashes upon being dm'd with a honk
   else if (containsHonk(message.content)) {  //Reacts to any message containing 'honk' or a number of set alternatives with the emoji tied to :honk: - Also makes sure to be case insensitive
     const reactionEmoji = message.guild.emojis.cache.find(emoji => emoji.name === 'honk');
-  message.react(reactionEmoji)
+    if (!reactionEmoji) {
+      console.error(`Unable to react with :honk: in ${message.guild.name}: emoji is not available`);
+      return;
+    }
+    message.react(reactionEmoji)
       .then(console.log(colors.blue(`Message Honked in: ${message.guild.name} -> ${message.channel.name}`)))
       .catch(console.error);
-} 
+  }
 });
 
 client.on('messageCreate', message => {     //The bot will react with a dagger emoji when targeting = 10 on a particular message

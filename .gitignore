@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Local secrets and environment files
+auth.json
+.env
+.env.*
+!.env.example
+
+# Logs and runtime output
+*.log
+logs/
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Local/editor/OS files
+.DS_Store
+.idea/
+.vscode/

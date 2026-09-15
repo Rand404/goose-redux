@@ -10,7 +10,7 @@ and the occasional verbal `HONK`.
 
 ## Requirements
 
-- Node.js 20 or later
+- Node.js 24 or later
 - A Discord application and bot token
 - A Discord server where the bot can read messages, add reactions, and send
   messages

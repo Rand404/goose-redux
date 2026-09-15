@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A Discord bot that honks at messages",
   "main": "index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "node --test *.test.js",
     "start": "node index.js"

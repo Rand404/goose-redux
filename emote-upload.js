@@ -7,7 +7,7 @@ function ensureHonkEmote(guild) {
   const existingEmote = guild.emojis.cache.find(emote => emote.name === 'honk');
   if (existingEmote) {
     console.log(`Reusing existing :honk: in ${guild.name}`);
-    return existingEmote;
+    return Promise.resolve(existingEmote);
   }
 
   const pendingCreation = honkEmoteCreations.get(guild.id);

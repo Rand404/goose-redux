@@ -99,7 +99,7 @@ The project currently uses Node's built-in test runner. The bot entry point is
 ├── auth.js
 ├── messageRules.js
 ├── test/
-│   └── index.test.js
+│   └── Goose.test.js
 ├── package.json
 ├── package-lock.json
 └── .gitignore

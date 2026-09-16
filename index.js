@@ -3,6 +3,7 @@ const colors = require('colors')  //Used for pretty aesthetic colours in console
 const { getToken } = require('./auth');
 const { ensureHonkEmote } = require('./emote-upload');
 const { containsHonk, containsLetterH, randomInteger } = require('./messageRules');
+const gooseFallback = '🪿';
 
 function loadToken() {
   try {
@@ -26,15 +27,11 @@ try {
 if (token) {
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
 
-client.once(Events.ClientReady, async c => {
+client.once(Events.ClientReady, c => {
   console.log(`HONK HONK HONK ${c.user.tag}!`);
-  await Promise.all(c.guilds.cache.map(guild =>
-    ensureHonkEmote(guild).catch(error => {
-      console.error(`Unable to create :honk: in ${guild.name}:`, error);
-    })
-  ));
 });
 
+// Provision emotes for servers joined after startup.
 client.on(Events.GuildCreate, guild => {
   ensureHonkEmote(guild).catch(error => {
     console.error(`Unable to create :honk: in ${guild.name}:`, error);
@@ -45,13 +42,30 @@ client.on('messageCreate', message => {
   if (message.channel.type == "dm") return; //Rough fix for a bug in which the bot crashes upon being dm'd with a honk
   else if (containsHonk(message.content)) {  //Reacts to any message containing 'honk' or a number of set alternatives with the emote tied to :honk: - Also makes sure to be case insensitive
     const reactionEmote = message.guild.emojis.cache.find(emote => emote.name === 'honk');
-    if (!reactionEmote) {
-      console.error(`Unable to react with :honk: in ${message.guild.name}: emote is not available`);
-      return;
-    }
-    message.react(reactionEmote)
-      .then(console.log(colors.blue(`Message Honked in: ${message.guild.name} -> ${message.channel.name}`)))
-      .catch(console.error);
+    const reactWithHonk = async () => {
+      try {
+        await message.react(reactionEmote);
+      } catch (error) {
+        console.error(`Unable to react with :honk: in ${message.guild.name}:`, error);
+        // Recreate a missing emote and retry this message once; no recursion prevents loops.
+        try {
+          const recoveredEmote = await ensureHonkEmote(message.guild);
+          await message.react(recoveredEmote);
+        } catch (recoveryError) {
+          console.error(`Unable to recover :honk: in ${message.guild.name}:`, recoveryError);
+          // Unicode goose is the final fallback when the custom emote is unavailable.
+          try {
+            await message.react(gooseFallback);
+            console.log(`Message FailHonked in: ${message.guild.name} -> ${message.channel.name}`);
+          } catch (fallbackError) {
+            console.error(`Unable to react with the Unicode goose in ${message.guild.name}:`, fallbackError);
+            return;
+          }
+        }
+      }
+      console.log(colors.blue(`Message Honked in: ${message.guild.name} -> ${message.channel.name}`));
+    };
+    reactWithHonk().catch(console.error);
   }
 });
 

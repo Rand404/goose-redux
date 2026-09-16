@@ -105,6 +105,7 @@ The project currently uses Node's built-in test runner. The bot entry point is
 └── .gitignore
 ```
 
-## License
+## Licence
 
-This project currently uses the ISC license declared in `package.json`.
+This project is licensed under the MIT Licence. See the [LICENCE](LICENCE) file
+for details.

@@ -95,10 +95,11 @@ The project currently uses Node's built-in test runner. The bot entry point is
 ├── index.js
 ├── assets/
 │   └── honk_emote.png
+├── emote-upload.js
 ├── auth.js
-├── auth.test.js
 ├── messageRules.js
-├── messageRules.test.js
+├── test/
+│   └── index.test.js
 ├── package.json
 ├── package-lock.json
 └── .gitignore

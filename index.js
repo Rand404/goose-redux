@@ -1,7 +1,7 @@
-const path = require('node:path');
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const colors = require('colors')  //Used for pretty aesthetic colours in console
 const { getToken } = require('./auth');
+const { ensureHonkEmote } = require('./emote-upload');
 const { containsHonk, containsLetterH, randomInteger } = require('./messageRules');
 
 function loadToken() {
@@ -25,28 +25,6 @@ try {
 
 if (token) {
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
-const honkEmoteAsset = path.join(__dirname, 'assets', 'honk_emote.png');
-const honkEmoteCreations = new Map();
-
-function ensureHonkEmote(guild) {
-  const existingEmote = guild.emojis.cache.find(emote => emote.name === 'honk');
-  if (existingEmote) return existingEmote;
-
-  const pendingCreation = honkEmoteCreations.get(guild.id);
-  if (pendingCreation) return pendingCreation;
-
-  const creation = guild.emojis.create({
-    attachment: honkEmoteAsset,
-    name: 'honk'
-  }).then(emote => {
-    console.log(colors.green(`Created :honk: in ${guild.name}`));
-    return emote;
-  }).finally(() => {
-    honkEmoteCreations.delete(guild.id);
-  });
-  honkEmoteCreations.set(guild.id, creation);
-  return creation;
-}
 
 client.once(Events.ClientReady, async c => {
   console.log(`HONK HONK HONK ${c.user.tag}!`);

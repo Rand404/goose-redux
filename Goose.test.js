@@ -1,14 +1,14 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const test = require('node:test');
-const { getToken } = require('../auth');
+const { getToken } = require('./auth');
 const {
   HONK_VARIANTS,
   containsHonk,
   containsLetterH,
   randomInteger
-} = require('../messageRules');
-const { ensureHonkEmote, honkEmoteAsset } = require('../emote-upload');
+} = require('./messageRules');
+const { ensureHonkEmote, honkEmoteAsset } = require('./emote-upload');
 
 function createGuild(emojis = [], create = async options => {
   const emote = { name: options.name };

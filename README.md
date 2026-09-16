@@ -98,8 +98,7 @@ The project currently uses Node's built-in test runner. The bot entry point is
 ├── emote-upload.js
 ├── auth.js
 ├── messageRules.js
-├── test/
-│   └── Goose.test.js
+├── Goose.test.js
 ├── package.json
 ├── package-lock.json
 └── .gitignore

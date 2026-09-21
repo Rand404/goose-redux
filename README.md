@@ -80,6 +80,25 @@ Run the test command with:
 npm test
 ```
 
+Set `DEBUG=1` when starting the bot to include diagnostic logs for actions that
+were not deployed, such as random dagger and verbal `HONK` checks. These logs
+are hidden by default to keep the normal output focused on successful actions
+and actionable warnings or errors.
+
+On MacOS/Linux:
+
+```sh
+DEBUG=1 npm start
+```
+
+On Windows PowerShell:
+
+```PowerShell
+$env:DEBUG="1"
+npm start
+
+```
+
 The project currently uses Node's built-in test runner. The bot entry point is
 `index.js`.
 

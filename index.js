@@ -1,8 +1,8 @@
 const { Client, Events, GatewayIntentBits } = require('discord.js');
-const colors = require('colors')  //Used for pretty aesthetic colours in console
 const { getToken } = require('./auth');
 const { ensureHonkEmote } = require('./emote-upload');
 const { containsHonk, containsLetterH, randomInteger } = require('./messageRules');
+const { debug, logError, logEvent } = require('./logger');
 const gooseFallback = '🪿';
 
 function loadToken() {
@@ -20,7 +20,9 @@ let token;
 try {
   token = loadToken();
 } catch (error) {
-  console.error(`Unable to start bot: ${error.message}`);
+  logError('start bot', error, {
+    fix: 'Create auth.json with a non-empty "token" value'
+  });
   process.exitCode = 1;
 }
 
@@ -28,13 +30,16 @@ if (token) {
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
 
 client.once(Events.ClientReady, c => {
-  console.log(`HONK HONK HONK ${c.user.tag}!`);
+  logEvent(`Connected as ${c.user.tag}`);
 });
 
 // Provision emotes for servers joined after startup.
 client.on(Events.GuildCreate, guild => {
   ensureHonkEmote(guild).catch(error => {
-    console.error(`Unable to create :honk: in ${guild.name}:`, error);
+    logError('create :honk:', error, {
+      guild,
+      fix: 'Grant Manage Expressions to the bot'
+    });
   });
 });
 
@@ -46,26 +51,35 @@ client.on('messageCreate', message => {
       try {
         await message.react(reactionEmote);
       } catch (error) {
-        console.error(`Unable to react with :honk: in ${message.guild.name}:`, error);
         // Recreate a missing emote and retry this message once; no recursion prevents loops.
         try {
           const recoveredEmote = await ensureHonkEmote(message.guild);
           await message.react(recoveredEmote);
-        } catch (recoveryError) {
-          console.error(`Unable to recover :honk: in ${message.guild.name}:`, recoveryError);
+          logEvent('WARN custom :honk: reaction failed; recreated emote and retried', message.guild, message.channel, 'warn');
+        } catch {
           // Unicode goose is the final fallback when the custom emote is unavailable.
           try {
             await message.react(gooseFallback);
-            console.log(`Message FailHonked in: ${message.guild.name} -> ${message.channel.name}`);
+            logEvent('WARN custom :honk: unavailable; reacted with Unicode goose', message.guild, message.channel, 'warn');
           } catch (fallbackError) {
-            console.error(`Unable to react with the Unicode goose in ${message.guild.name}:`, fallbackError);
+            logError('react with Unicode goose', fallbackError, {
+              guild: message.guild,
+              channel: message.channel,
+              messageId: message.id,
+              fix: 'Grant Add Reactions in this channel'
+            });
             return;
           }
         }
       }
-      console.log(colors.blue(`Message Honked in: ${message.guild.name} -> ${message.channel.name}`));
+      logEvent('HONK reacted', message.guild, message.channel, 'success');
     };
-    reactWithHonk().catch(console.error);
+    reactWithHonk().catch(error => logError('react to message', error, {
+      guild: message.guild,
+      channel: message.channel,
+      messageId: message.id,
+      fix: 'Grant Add Reactions in this channel'
+    }));
   }
 });
 
@@ -74,10 +88,15 @@ client.on('messageCreate', message => {     //The bot will react with a dagger e
   if (message.channel.type == "dm") return; 
   else if (targeting == 10) {
   message.react('🗡️')
-    .then(console.log(colors.cyan(`DAGGER deployed in: ${message.guild.name} -> ${message.channel.name}`)))
-    .catch(console.error);
+    .then(() => logEvent('DAGGER deployed', message.guild, message.channel, 'success'))
+    .catch(error => logError('deploy dagger', error, {
+      guild: message.guild,
+      channel: message.channel,
+      messageId: message.id,
+      fix: 'Grant Add Reactions in this channel'
+    }));
 } else {
-    console.log(colors.red(targeting + ' DAGGER not deployed'));
+    debug(`DAGGER not deployed (roll=${targeting})`, message.guild, message.channel);
 }});
 
 client.on('messageCreate', message => {   //On any message containing the letter 'h' the bot generates a number between 1 and 1000
@@ -86,16 +105,23 @@ client.on('messageCreate', message => {   //On any message containing the letter
     var number = randomInteger(1000);
     if (number == 50) { //If that message is a 50 it triggers a special honk
       message.channel.send('HONK')
-        .then(console.log(colors.green(`Verbal HONK deployed: ${message.guild.name} -> ${message.channel.name}`)))
-        .catch(console.error);
+        .then(() => logEvent('VERBAL HONK sent', message.guild, message.channel, 'success'))
+        .catch(error => logError('send verbal HONK', error, {
+          guild: message.guild,
+          channel: message.channel,
+          messageId: message.id,
+          fix: 'Grant Send Messages in this channel'
+        }));
   }  else {
-      console.log(colors.red(number + ' Verbal HONK not deployed')); //On any other number it generates a console log and does nothing
+      debug(`VERBAL HONK not sent (roll=${number})`, message.guild, message.channel);
     }
   }
 });
 
 client.login(token).catch(error => {
-  console.error(`Unable to log in to Discord: ${error.message}`);
+  logError('log in to Discord', error, {
+    fix: 'Check auth.json and regenerate the bot token if needed'
+  });
   process.exitCode = 1;
 });
 }

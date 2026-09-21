@@ -1,4 +1,5 @@
 const path = require('node:path');
+const { logEvent } = require('./logger');
 
 const honkEmoteAsset = path.join(__dirname, 'assets', 'honk_emote.png');
 // Share one upload promise per guild when lifecycle and recovery events overlap.
@@ -7,7 +8,7 @@ const honkEmoteCreations = new Map();
 function ensureHonkEmote(guild) {
   const existingEmote = guild.emojis.cache.find(emote => emote.name === 'honk');
   if (existingEmote) {
-    console.log(`Reusing existing :honk: in ${guild.name}`);
+    logEvent('Reusing existing :honk:', guild, undefined, 'debug');
     return Promise.resolve(existingEmote);
   }
 
@@ -19,7 +20,7 @@ function ensureHonkEmote(guild) {
     attachment: honkEmoteAsset,
     name: 'honk'
   }).then(emote => {
-    console.log(`Created :honk: in ${guild.name}`);
+    logEvent('Created :honk:', guild, undefined, 'success');
     return emote;
   }).finally(() => {
     honkEmoteCreations.delete(guild.id);

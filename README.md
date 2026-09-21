@@ -111,6 +111,7 @@ The project currently uses Node's built-in test runner. The bot entry point is
 │   └── honk_emote.png
 ├── emote-upload.js
 ├── auth.js
+├── logger.js
 ├── messageRules.js
 ├── Goose.test.js
 ├── package.json

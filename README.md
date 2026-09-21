@@ -13,10 +13,6 @@ and the occasional verbal `HONK`.
 
 - Node.js 24 or later
 
-The bot uses the `Guilds`, `GuildMessages`, `GuildMembers`, and
-`MessageContent` gateway intents. Enable the privileged **Message Content**
-intent in the Discord Developer Portal before starting the bot.
-
 ## Installation
 
 ### 1. Create the Discord application
@@ -25,8 +21,9 @@ intent in the Discord Developer Portal before starting the bot.
    and select **New Application**.
 2. Give the application a name and select **Create**.
 3. Open the **Bot** page and select **Add Bot**, then confirm.
-4. Under **Privileged Gateway Intents**, enable **Message Content Intent**.
-   The bot uses this intent to inspect message text.
+4. Under **Gateway Intents** / **Privileged Gateway Intents**, enable
+   **Server Members** and **Message Content**.
+   The bot uses these intents to read guild activity and inspect message text.
 5. Select **Reset Token**, copy the new token, and keep it secret. You will
    not be able to view the full token again without resetting it.
 
@@ -63,8 +60,6 @@ Create an `auth.json` file in the project root:
 ```
 
 The file is ignored by Git. Never commit your bot token or share it publicly.
-If the file is missing or does not contain a token, the bot prints an error and
-exits without attempting to connect to Discord.
 
 ### 5. Start the bot
 

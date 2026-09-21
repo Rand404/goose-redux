@@ -5,15 +5,13 @@ and the occasional verbal `HONK`.
 
 ## Features
 
-- Reacts to honk variations with the server's custom `honk` emoji.
+- Reacts to honk variations with a `honk` emote, creating one automatically
+  if the server lacks one.
 - Occasionally reacts with a dagger or replies with `HONK`.
 
 ## Requirements
 
 - Node.js 24 or later
-- A Discord application and bot token
-- A Discord server where the bot can read messages, add reactions, and send
-  messages
 
 The bot uses the `Guilds`, `GuildMessages`, `GuildMembers`, and
 `MessageContent` gateway intents. Enable the privileged **Message Content**
@@ -40,10 +38,9 @@ intent in the Discord Developer Portal before starting the bot.
     - View Channels
     - Send Messages
     - Add Reactions
+    - Manage Expressions
 4. Copy the generated URL, open it in a browser, and select the server where
    you want to install the bot.
-
-5. Create an emote named 'honk' to be used as the honk reaction
 
 ### 3. Clone and install the project
 
@@ -96,10 +93,12 @@ The project currently uses Node's built-in test runner. The bot entry point is
 ```text
 .
 ├── index.js
+├── assets/
+│   └── honk_emote.png
+├── emote-upload.js
 ├── auth.js
-├── auth.test.js
 ├── messageRules.js
-├── messageRules.test.js
+├── Goose.test.js
 ├── package.json
 ├── package-lock.json
 └── .gitignore
